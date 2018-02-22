@@ -1,21 +1,20 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import numpy as np
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.autograd import Variable
 
-from utils.init_weights import init_weights, normalized_columns_initializer
 from core.model import Model
+from utils.init_weights import init_weights, normalized_columns_initializer
+
 
 class A3CMlpConModel(Model):
     def __init__(self, args):
         super(A3CMlpConModel, self).__init__(args)
         # build model
         # 0. feature layers
-        self.fc1 = nn.Linear(self.input_dims[0] * self.input_dims[1], self.hidden_dim) # NOTE: for pkg="gym"
+        self.fc1 = nn.Linear(self.input_dims[0] * self.input_dims[1], self.hidden_dim)  # NOTE: for pkg="gym"
         self.rl1 = nn.ReLU()
         self.fc2 = nn.Linear(self.hidden_dim, self.hidden_dim)
         self.rl2 = nn.ReLU()
@@ -24,7 +23,7 @@ class A3CMlpConModel(Model):
         self.fc4 = nn.Linear(self.hidden_dim, self.hidden_dim)
         self.rl4 = nn.ReLU()
 
-        self.fc1_v = nn.Linear(self.input_dims[0] * self.input_dims[1], self.hidden_dim) # NOTE: for pkg="gym"
+        self.fc1_v = nn.Linear(self.input_dims[0] * self.input_dims[1], self.hidden_dim)  # NOTE: for pkg="gym"
         self.rl1_v = nn.ReLU()
         self.fc2_v = nn.Linear(self.hidden_dim, self.hidden_dim)
         self.rl2_v = nn.ReLU()
@@ -35,15 +34,15 @@ class A3CMlpConModel(Model):
 
         # lstm
         if self.enable_lstm:
-            self.lstm  = nn.LSTMCell(self.hidden_dim, self.hidden_dim)
-            self.lstm_v  = nn.LSTMCell(self.hidden_dim, self.hidden_dim)
+            self.lstm = nn.LSTMCell(self.hidden_dim, self.hidden_dim)
+            self.lstm_v = nn.LSTMCell(self.hidden_dim, self.hidden_dim)
 
         # 1. policy output
-        self.policy_5   = nn.Linear(self.hidden_dim, self.output_dims)
+        self.policy_5 = nn.Linear(self.hidden_dim, self.output_dims)
         self.policy_sig = nn.Linear(self.hidden_dim, self.output_dims)
-        self.softplus   = nn.Softplus()
+        self.softplus = nn.Softplus()
         # 2. value output
-        self.value_5    = nn.Linear(self.hidden_dim, 1)
+        self.value_5 = nn.Linear(self.hidden_dim, 1)
 
         self._reset()
 
@@ -76,8 +75,8 @@ class A3CMlpConModel(Model):
         p = self.rl4(self.fc4(p))
         p = p.view(-1, self.hidden_dim)
         if self.enable_lstm:
-            p_, v_ = torch.split(lstm_hidden_vb[0],1)
-            c_p, c_v = torch.split(lstm_hidden_vb[1],1)
+            p_, v_ = torch.split(lstm_hidden_vb[0], 1)
+            c_p, c_v = torch.split(lstm_hidden_vb[1], 1)
             p, c_p = self.lstm(p, (p_, c_p))
         p_out = self.policy_5(p)
         sig = self.policy_sig(p)
@@ -94,6 +93,6 @@ class A3CMlpConModel(Model):
         v_out = self.value_5(v)
 
         if self.enable_lstm:
-            return p_out, sig, v_out, (torch.cat((p,v),0), torch.cat((c_p, c_v),0))
+            return p_out, sig, v_out, (torch.cat((p, v), 0), torch.cat((c_p, c_v), 0))
         else:
             return p_out, sig, v_out

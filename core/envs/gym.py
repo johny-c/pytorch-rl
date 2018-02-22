@@ -1,28 +1,25 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import numpy as np
-from copy import deepcopy
-from gym.spaces.box import Box
-import inspect
 
-from utils.helpers import Experience            # NOTE: here state0 is always "None"
-from utils.helpers import preprocessAtari, rgb2gray, rgb2y, scale
 from core.env import Env
+
 
 class GymEnv(Env):  # low dimensional observations
     def __init__(self, args, env_ind=0):
         super(GymEnv, self).__init__(args, env_ind)
 
         assert self.env_type == "gym"
-        try: import gym
-        except ImportError as e: self.logger.warning("WARNING: gym not found")
+        try:
+            import gym
+        except ImportError as e:
+            self.logger.warning("WARNING: gym not found")
 
         self.env = gym.make(self.game)
-        self.env.seed(self.seed)    # NOTE: so each env would be different
+        self.env.seed(self.seed)  # NOTE: so each env would be different
 
         # action space setup
-        self.actions     = range(self.action_dim)
+        self.actions = range(self.action_dim)
         self.logger.warning("Action Space: %s", self.actions)
 
         # state space setup
@@ -34,7 +31,7 @@ class GymEnv(Env):  # low dimensional observations
         else:
             self.enable_continuous = False
 
-    def _preprocessState(self, state):    # NOTE: here no preprecessing is needed
+    def _preprocessState(self, state):  # NOTE: here no preprecessing is needed
         return state
 
     @property
@@ -51,7 +48,6 @@ class GymEnv(Env):  # low dimensional observations
             return frame
         else:
             return self.env.render()
-
 
     def visual(self):
         pass

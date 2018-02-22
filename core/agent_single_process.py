@@ -1,21 +1,15 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import numpy as np
-import random
-import time
-import math
-import torch
-import torch.optim as optim
-from torch.autograd import Variable
-import torch.nn.functional as F
+
 import torch.multiprocessing as mp
 
-from utils.helpers import Experience, one_hot
+from utils.helpers import Experience
+
 
 class AgentSingleProcess(mp.Process):
     def __init__(self, master, process_id=0):
-        super(AgentSingleProcess, self).__init__(name = "Process-%d" % process_id)
+        super(AgentSingleProcess, self).__init__(name="Process-%d" % process_id)
         # NOTE: self.master.* refers to parameters shared across all processes
         # NOTE: self.*        refers to process-specific properties
         # NOTE: we are not copying self.master.* to self.* to keep the code clean
@@ -32,12 +26,12 @@ class AgentSingleProcess(mp.Process):
         # experience
         self._reset_experience()
 
-    def _reset_experience(self):    # for getting one set of observation from env for every action taken
-        self.experience = Experience(state0 = None,
-                                     action = None,
-                                     reward = None,
-                                     state1 = None,
-                                     terminal1 = False) # TODO: should check this again
+    def _reset_experience(self):  # for getting one set of observation from env for every action taken
+        self.experience = Experience(state0=None,
+                                     action=None,
+                                     reward=None,
+                                     state1=None,
+                                     terminal1=False)  # TODO: should check this again
 
     def _sync_local_with_global(self):  # grab the current global model for local learning/evaluating
         self.model.load_state_dict(self.master.model.state_dict())

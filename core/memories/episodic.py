@@ -1,10 +1,12 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
 import random
-from collections import deque, namedtuple
+from collections import deque
 
 from utils.helpers import ACER_Off_Policy_Experience
+
 
 # TODO: should inherite from Memory to make it consistent
 class EpisodicMemory():
@@ -16,7 +18,8 @@ class EpisodicMemory():
         self.position = 0
 
     def append(self, state0, action, reward, detached_old_policy_vb):
-        self.memory[self.position].append(ACER_Off_Policy_Experience(state0, action, reward, detached_old_policy_vb))  # Save s_i, a_i, r_i+1, /mu(|s_i)
+        self.memory[self.position].append(ACER_Off_Policy_Experience(state0, action, reward,
+                                                                     detached_old_policy_vb))  # Save s_i, a_i, r_i+1, /mu(|s_i)
         # Terminal states are saved with actions as None, so switch to next episode
         if action is None:
             self.memory.append([])

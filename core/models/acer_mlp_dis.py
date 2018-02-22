@@ -1,14 +1,12 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.autograd import Variable
 
-from utils.init_weights import init_weights, normalized_columns_initializer
+import torch.nn as nn
+
 from core.model import Model
+from utils.init_weights import init_weights, normalized_columns_initializer
+
 
 class ACERMlpDisModel(Model):
     def __init__(self, args):
@@ -20,7 +18,7 @@ class ACERMlpDisModel(Model):
 
         # lstm
         if self.enable_lstm:
-            self.lstm  = nn.LSTMCell(self.hidden_dim, self.hidden_dim)
+            self.lstm = nn.LSTMCell(self.hidden_dim, self.hidden_dim)
 
         # 1. actor:  /pi_{/theta}(a_t | x_t)
         self.actor_2 = nn.Linear(self.hidden_dim, self.output_dims)
@@ -46,9 +44,9 @@ class ACERMlpDisModel(Model):
         # x = x.view(-1, 3*3*32)
         if self.enable_lstm:
             x, c = self.lstm(x, lstm_hidden_vb)
-        policy = self.actor_3(self.actor_2(x)).clamp(max=1-1e-6, min=1e-6) # TODO: max might not be necessary
+        policy = self.actor_3(self.actor_2(x)).clamp(max=1 - 1e-6, min=1e-6)  # TODO: max might not be necessary
         q = self.critic_2(x)
-        v = (q * policy).sum(1, keepdim=True)   # expectation of Q under /pi
+        v = (q * policy).sum(1, keepdim=True)  # expectation of Q under /pi
         if self.enable_lstm:
             return policy, q, v, (x, c)
         else:

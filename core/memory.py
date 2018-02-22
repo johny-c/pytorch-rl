@@ -1,12 +1,13 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import numpy as np
-from collections import deque, namedtuple
-import warnings
-import random
 
-from utils.helpers import Experience
+import random
+import warnings
+from collections import deque
+
+import numpy as np
+
 
 def sample_batch_indexes(low, high, size):
     if high - low >= size:
@@ -23,10 +24,12 @@ def sample_batch_indexes(low, high, size):
         # Not enough data. Help ourselves with sampling from the range, but the same index
         # can occur multiple times. This is not good and should be avoided by picking a
         # large enough warm-up phase.
-        warnings.warn('Not enough entries to sample without replacement. Consider increasing your warm-up phase to avoid oversampling!')
+        warnings.warn(
+            'Not enough entries to sample without replacement. Consider increasing your warm-up phase to avoid oversampling!')
         batch_idxs = np.random.random_integers(low, high - 1, size=size)
     assert len(batch_idxs) == size
     return batch_idxs
+
 
 def zeroed_observation(observation):
     if hasattr(observation, 'shape'):
@@ -38,6 +41,7 @@ def zeroed_observation(observation):
         return out
     else:
         return 0.
+
 
 class RingBuffer(object):
     def __init__(self, maxlen):
@@ -65,6 +69,7 @@ class RingBuffer(object):
             # This should never happen.
             raise RuntimeError()
         self.data[(self.start + self.length - 1) % self.maxlen] = v
+
 
 class Memory(object):
     def __init__(self, window_length, ignore_episode_boundaries=False):

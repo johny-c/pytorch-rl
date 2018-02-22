@@ -1,14 +1,14 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.autograd import Variable
 
-from utils.init_weights import init_weights, normalized_columns_initializer
 from core.model import Model
+
 
 class DQNMlpModel(Model):
     def __init__(self, args):
@@ -20,11 +20,11 @@ class DQNMlpModel(Model):
         self.rl2 = nn.ReLU()
         self.fc3 = nn.Linear(self.hidden_dim, self.hidden_dim)
         self.rl3 = nn.ReLU()
-        if self.enable_dueling: # [0]: V(s); [1,:]: A(s, a)
+        if self.enable_dueling:  # [0]: V(s); [1,:]: A(s, a)
             self.fc4 = nn.Linear(self.hidden_dim, self.output_dims + 1)
             self.v_ind = torch.LongTensor(self.output_dims).fill_(0).unsqueeze(0)
             self.a_ind = torch.LongTensor(np.arange(1, self.output_dims + 1)).unsqueeze(0)
-        else: # one q value output for each action
+        else:  # one q value output for each action
             self.fc4 = nn.Linear(self.hidden_dim, self.output_dims)
 
         self._reset()
@@ -56,12 +56,12 @@ class DQNMlpModel(Model):
             v = x.gather(1, v_ind_vb.expand(x.size(0), self.output_dims))
             a = x.gather(1, a_ind_vb.expand(x.size(0), self.output_dims))
             # now calculate Q(s, a)
-            if self.dueling_type == "avg":      # Q(s,a)=V(s)+(A(s,a)-avg_a(A(s,a)))
+            if self.dueling_type == "avg":  # Q(s,a)=V(s)+(A(s,a)-avg_a(A(s,a)))
                 # x = v + (a - a.mean(1)).expand(x.size(0), self.output_dims)   # 0.1.12
-                x = v + (a - a.mean(1, keepdim=True))                           # 0.2.0
-            elif self.dueling_type == "max":    # Q(s,a)=V(s)+(A(s,a)-max_a(A(s,a)))
+                x = v + (a - a.mean(1, keepdim=True))  # 0.2.0
+            elif self.dueling_type == "max":  # Q(s,a)=V(s)+(A(s,a)-max_a(A(s,a)))
                 # x = v + (a - a.max(1)[0]).expand(x.size(0), self.output_dims) # 0.1.12
-                x = v + (a - a.max(1, keepdim=True)[0])                         # 0.2.0
+                x = v + (a - a.max(1, keepdim=True)[0])  # 0.2.0
             elif self.dueling_type == "naive":  # Q(s,a)=V(s)+ A(s,a)
                 x = v + a
             else:

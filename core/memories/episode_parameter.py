@@ -1,13 +1,9 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import numpy as np
-from collections import deque, namedtuple
-import warnings
-import random
 
-from utils.helpers import Experience
 from core.memory import sample_batch_indexes, RingBuffer, Memory
+
 
 class EpisodeParameterMemory(Memory):
     def __init__(self, limit, **kwargs):

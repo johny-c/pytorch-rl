@@ -1,10 +1,11 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
 import random
 
-from utils.helpers import Experience
 from core.agent import Agent
+
 
 class EmptyAgent(Agent):
     def __init__(self, args, env_prototype, model_prototype, memory_prototype):
@@ -14,7 +15,7 @@ class EmptyAgent(Agent):
         # env
         self.env = self.env_prototype(self.env_params)
         self.state_shape = self.env.state_shape
-        self.action_dim  = self.env.action_dim
+        self.action_dim = self.env.action_dim
 
         self._reset_experience()
 
@@ -27,7 +28,7 @@ class EmptyAgent(Agent):
     def _eval_model(self):
         pass
 
-    def fit_model(self):    # the most basic control loop, to ease integration of new envs
+    def fit_model(self):  # the most basic control loop, to ease integration of new envs
         self.step = 0
         should_start_new = True
         while self.step < self.steps:
@@ -38,7 +39,8 @@ class EmptyAgent(Agent):
                 if self.visualize: self.env.visual()
                 if self.render: self.env.render()
                 should_start_new = False
-            action = random.randrange(self.action_dim)      # thus we only randomly sample actions here, since the model hasn't been updated at all till now
+            action = random.randrange(
+                self.action_dim)  # thus we only randomly sample actions here, since the model hasn't been updated at all till now
             self.experience = self.env.step(action)
             if self.visualize: self.env.visual()
             if self.render: self.env.render()

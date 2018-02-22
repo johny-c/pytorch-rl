@@ -1,10 +1,11 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
 import torch
-import torch.optim as optim
 
 from utils.helpers import Experience
+
 
 class Agent(object):
     def __init__(self, args, env_prototype, model_prototype, memory_prototype=None):
@@ -12,16 +13,16 @@ class Agent(object):
         self.logger = args.logger
 
         # prototypes for env & model & memory
-        self.env_prototype = env_prototype          # NOTE: instantiated in fit_model() of inherited Agents
+        self.env_prototype = env_prototype  # NOTE: instantiated in fit_model() of inherited Agents
         self.env_params = args.env_params
-        self.model_prototype = model_prototype      # NOTE: instantiated in fit_model() of inherited Agents
+        self.model_prototype = model_prototype  # NOTE: instantiated in fit_model() of inherited Agents
         self.model_params = args.model_params
-        self.memory_prototype = memory_prototype    # NOTE: instantiated in __init__()  of inherited Agents (dqn needs, a3c doesn't so only pass in None)
+        self.memory_prototype = memory_prototype  # NOTE: instantiated in __init__()  of inherited Agents (dqn needs, a3c doesn't so only pass in None)
         self.memory_params = args.memory_params
 
         # params
-        self.model_name = args.model_name           # NOTE: will save the current model to model_name
-        self.model_file = args.model_file           # NOTE: will load pretrained model_file if not None
+        self.model_name = args.model_name  # NOTE: will save the current model to model_name
+        self.model_file = args.model_file  # NOTE: will load pretrained model_file if not None
 
         self.render = args.render
         self.visualize = args.visualize
@@ -31,8 +32,8 @@ class Agent(object):
 
         self.save_best = args.save_best
         if self.save_best:
-            self.best_step   = None                 # NOTE: achieves best_reward at this step
-            self.best_reward = None                 # NOTE: only save a new model if achieves higher reward
+            self.best_step = None  # NOTE: achieves best_reward at this step
+            self.best_reward = None  # NOTE: only save a new model if achieves higher reward
 
         self.hist_len = args.hist_len
         self.hidden_dim = args.hidden_dim
@@ -57,7 +58,7 @@ class Agent(object):
         self.prog_freq = args.prog_freq
         self.test_nepisodes = args.test_nepisodes
         if args.agent_type == "dqn":
-            self.enable_double_dqn  = args.enable_double_dqn
+            self.enable_double_dqn = args.enable_double_dqn
             self.enable_dueling = args.enable_dueling
             self.dueling_type = args.dueling_type
 
@@ -104,11 +105,11 @@ class Agent(object):
             self.beta = args.beta
 
     def _reset_experience(self):
-        self.experience = Experience(state0 = None,
-                                     action = None,
-                                     reward = None,
-                                     state1 = None,
-                                     terminal1 = False)
+        self.experience = Experience(state0=None,
+                                     action=None,
+                                     reward=None,
+                                     state1=None,
+                                     terminal1=False)
 
     def _load_model(self, model_file):
         if model_file:
@@ -122,13 +123,15 @@ class Agent(object):
         self.logger.warning("Saving Model    @ Step: " + str(step) + ": " + self.model_name + " ...")
         if self.save_best:
             if self.best_step is None:
-                self.best_step   = step
+                self.best_step = step
                 self.best_reward = curr_reward
             if curr_reward >= self.best_reward:
-                self.best_step   = step
+                self.best_step = step
                 self.best_reward = curr_reward
                 torch.save(self.model.state_dict(), self.model_name)
-            self.logger.warning("Saved  Model    @ Step: " + str(step) + ": " + self.model_name + ". {Best Step: " + str(self.best_step) + " | Best Reward: " + str(self.best_reward) + "}")
+            self.logger.warning(
+                "Saved  Model    @ Step: " + str(step) + ": " + self.model_name + ". {Best Step: " + str(
+                    self.best_step) + " | Best Reward: " + str(self.best_reward) + "}")
         else:
             torch.save(self.model.state_dict(), self.model_name)
             self.logger.warning("Saved  Model    @ Step: " + str(step) + ": " + self.model_name + ".")
@@ -142,8 +145,8 @@ class Agent(object):
     def _eval_model(self):  # evaluation during training
         raise NotImplementedError("not implemented in base calss")
 
-    def fit_model(self):    # training
+    def fit_model(self):  # training
         raise NotImplementedError("not implemented in base calss")
 
-    def test_model(self):   # testing pre-trained models
+    def test_model(self):  # testing pre-trained models
         raise NotImplementedError("not implemented in base calss")
