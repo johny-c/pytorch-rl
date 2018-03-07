@@ -7,3 +7,5 @@ optims/*.pyc
 utils/*.pyc
 models/*
 logs/*
+
+.python-version
